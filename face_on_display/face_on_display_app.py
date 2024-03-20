@@ -1,5 +1,7 @@
 from depth_estimation import DepthEstimation
 import tkinter as tk
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from util.tk_color import rgb_code2rgb
 import cv2
 import numpy as np

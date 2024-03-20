@@ -1,20 +1,21 @@
 import cv2
 import numpy as np
 
-# video, which is editted with Clipchamp, has a green back with value of [r, g, b] = [95, 241, 17]
+# The video, edited with Clipchamp, features a green background with the RGB value of [95, 241, 17], as well as variations around it
+# Some pixels exhibit fluctuations around their values, having different values
 
 def get_mask(image):
-    # HSVカラースペースに変換
+    # Convert to HSV color space
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    # グリーンの色相の範囲を指定
+    # Specify the range of green hue
     lower_green = np.array([40, 40, 40])
     upper_green = np.array([80, 255, 255])
 
-    # しきい値処理を行ってグリーンバックの領域を検出
+    # Perform thresholding to detect the region of the green background
     mask = cv2.inRange(hsv, lower_green, upper_green)
 
-    # ノイズを削除
+    # denoise
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
 
     image_mask = (mask == 255)

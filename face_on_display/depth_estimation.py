@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 try:
     # linux
     import tflite_runtime.interpreter as tflite
@@ -14,7 +15,8 @@ class DepthEstimation:
 
     def load_model(self, model = None):
         if model is None:
-            self.interpreter = tflite.Interpreter("model/lite-model_midas_v2_1_small_1_lite_1.tflite")
+            model_dir_path = fr"{os.path.abspath(os.path.dirname(os.path.abspath(__file__)))}/model"
+            self.interpreter = tflite.Interpreter(fr"{model_dir_path}/lite-model_midas_v2_1_small_1_lite_1.tflite")
             self.interpreter.allocate_tensors()
         else:
             self.interpreter = tflite.Interpreter(model)
