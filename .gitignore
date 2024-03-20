@@ -1,5 +1,5 @@
-_pycache_/
-machi_chara/_pycache_/
+__pycache__/
+machi_chara/__pycache__/
 machi_chara/.*/
-face_on_display/_pycache_/
+face_on_display/__pycache__/
 face_on_display/.*/
