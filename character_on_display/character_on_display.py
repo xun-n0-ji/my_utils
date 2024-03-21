@@ -96,12 +96,11 @@ class CharacterOnDisplayApp:
         self.root.geometry(f"{self.window_width}x{self.window_height}+{self.x}+{self.y}")
     
     def update_frame(self):
+        if time_measure:
+            start = time.perf_counter()
         ret, frame = self.video.read()
         if ret:
-            if time_measure:
-                start = time.perf_counter()
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
             # 画像をリサイズ
             frame = cv2.resize(frame, (self.window_width, self.window_height), interpolation=cv2.INTER_LANCZOS4)
             frame[get_mask(frame)] = rgb_code2rgb(self.BG_COLOR)
@@ -119,14 +118,15 @@ class CharacterOnDisplayApp:
             
             # 画像が参照され続けるようにラベルオブジェクトを保持
             self.canvas.imgtk = imgtk
-            if time_measure:
-                print(time.perf_counter() - start)
         else:
             self.video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+        if time_measure:
+            print(time.perf_counter() - start)
 
         self.canvas.after(10, self.update_frame)  # 10ミリ秒ごとにフレームを更新
         self.move_window(step = 5)
 
 if __name__ == '__main__':
     image_dirpath = fr"{os.path.dirname(os.path.abspath(__file__))}/image"
-    CharacterOnDisplayApp(fr"{image_dirpath}\ms_minutes_walking_GB.mp4", r=0.5, monitor_index=1)
+    CharacterOnDisplayApp(fr"{image_dirpath}\ms_minutes_walking_GB.mp4", r=0.5, monitor_index=0)

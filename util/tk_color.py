@@ -22,7 +22,7 @@ def rgb_name2code(color_name):
     root.destroy()
     return rgb_code
 
-# too weight! takes 0.1s
+# too weight! ~ 0.1s
 def rgb_name2rgb(color_name):
     start = time.perf_counter()
     root = tk.Tk()
