@@ -1,0 +1,14 @@
+setting1:
+  sub_setting1: 8/4
+  sub_setting2:
+    subsub_setting1: 5
+    subsub_setting2:
+      subsubsub_setting2: "d"
+  
+setting2:
+  sub_setting1: ${setting1.sub_setting1}*${setting1.sub_setting2.subsub_setting1}
+  sub_setting2:
+    subsub_setting1: "f"
+    subsub_setting2: "g"
+    subsubsub_setting1:
+      subsubsub_setting2: "i"
