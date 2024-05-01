@@ -4,3 +4,7 @@ machi_chara/.*/
 face_on_display/__pycache__/
 face_on_display/.*/
 _old/
+env/
+*.png
+*.JPG
+*.zip
