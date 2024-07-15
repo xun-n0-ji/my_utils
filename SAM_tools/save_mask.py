@@ -64,19 +64,15 @@ class AnnotationManager:
                     label_file.write(f"{self.class_id} " + " ".join(map(str, points)) + "\n")
 
 class Deleter(tk.Canvas):
-    def __init__(self, root, input_image_path, mask, contours, output_dir, class_id):
+    def __init__(self, root, input_image_path, mask, contours, manager):
         super().__init__(root, width=mask.shape[1], height=mask.shape[0])
         self.root = root
         self.input_image_path = input_image_path
         self.mask = mask
         self.contours = list(contours)  # Convert tuple to list
-        self.output_dir = output_dir
-        self.class_id = class_id
         self.selected_contour_idx = None
+        self.manager = manager
 
-        self.processor = ImageProcessor()
-        self.manager = AnnotationManager(output_dir, class_id)
-        
         self.root.title("Image with Mask")
         self.root.bind('<Delete>', self.on_delete)
 
@@ -130,24 +126,38 @@ class Deleter(tk.Canvas):
         self.image_tk = image_tk
         self.create_image(0, 0, anchor=tk.NW, image=image_tk)
 
+class AnnotatorTool:
+    def __init__(self, root, input_image_path, class_id, output_dir):
+        self.root = root
+        self.input_image_path = input_image_path
+        self.class_id = class_id
+        self.output_dir = output_dir
+
+        self.processor = ImageProcessor()
+        self.manager = AnnotationManager(output_dir, class_id)
+
+        self.init_ui()
+
+    def init_ui(self):
+        output_path = os.path.join(self.output_dir, 'niwatori-remove.png')
+        if self.processor.remove_background(self.input_image_path, output_path):
+            mask = self.processor.apply_mask_to_background(output_path)
+            if mask is not None:
+                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                self.manager.save_contours_and_labels(mask, contours, self.input_image_path)
+
+                self.deleter = Deleter(self.root, self.input_image_path, mask, contours, self.manager)
+                self.deleter.pack()
+
 def main():
     outdir = os.path.join(os.path.dirname(__file__), 'output')
     os.makedirs(outdir, exist_ok=True)
     input_path = 'niwatori.jpg'
-    output_path = os.path.join(outdir, 'niwatori-remove.png')
     class_id = 1
 
-    processor = ImageProcessor()
-    if processor.remove_background(input_path, output_path):
-        mask = processor.apply_mask_to_background(output_path)
-        if mask is not None:
-            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            manager = AnnotationManager(outdir, class_id)
-            manager.save_contours_and_labels(mask, contours, input_path)
-
-            root = tk.Tk()
-            tool = Deleter(root, input_path, mask, contours, outdir, class_id)
-            root.mainloop()
+    root = tk.Tk()
+    tool = AnnotatorTool(root, input_path, class_id, outdir)
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
