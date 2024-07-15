@@ -63,8 +63,9 @@ class AnnotationManager:
                 for _, points in self.labels:
                     label_file.write(f"{self.class_id} " + " ".join(map(str, points)) + "\n")
 
-class AnnotationTool:
+class Deleter(tk.Canvas):
     def __init__(self, root, input_image_path, mask, contours, output_dir, class_id):
+        super().__init__(root, width=mask.shape[1], height=mask.shape[0])
         self.root = root
         self.input_image_path = input_image_path
         self.mask = mask
@@ -90,13 +91,12 @@ class AnnotationTool:
         self.image_pil = Image.fromarray(self.display_image)
         self.image_tk = ImageTk.PhotoImage(self.image_pil)
         
-        self.canvas = tk.Canvas(root, width=self.image_pil.width, height=self.image_pil.height)
-        self.canvas.pack()
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image_tk)
-        self.canvas.image_tk = self.image_tk
+        self.pack()
+        self.create_image(0, 0, anchor=tk.NW, image=self.image_tk)
+        self.image_tk = self.image_tk
 
-        self.canvas.bind('<Motion>', self.on_mouse_move)
-        self.canvas.bind('<Button-1>', self.on_mouse_click)
+        self.bind('<Motion>', self.on_mouse_move)
+        self.bind('<Button-1>', self.on_mouse_click)
 
     def on_mouse_move(self, event):
         x, y = event.x, event.y
@@ -127,8 +127,8 @@ class AnnotationTool:
     def update_image(self, image):
         image_pil = Image.fromarray(image)
         image_tk = ImageTk.PhotoImage(image_pil)
-        self.canvas.image_tk = image_tk
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=image_tk)
+        self.image_tk = image_tk
+        self.create_image(0, 0, anchor=tk.NW, image=image_tk)
 
 def main():
     outdir = os.path.join(os.path.dirname(__file__), 'output')
@@ -146,7 +146,7 @@ def main():
             manager.save_contours_and_labels(mask, contours, input_path)
 
             root = tk.Tk()
-            tool = AnnotationTool(root, input_path, mask, contours, outdir, class_id)
+            tool = Deleter(root, input_path, mask, contours, outdir, class_id)
             root.mainloop()
 
 if __name__ == "__main__":
