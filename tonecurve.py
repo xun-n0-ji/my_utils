@@ -38,12 +38,17 @@ class ToneCurveWindow:
         self.main_app = main_app
         self.points = []
         self.vertical_lines = []
+        self.regions = []
+        self.selected_point = None
+        
         for i in range(25):
             x = 20 * i
-            point = self.canvas.create_oval(x - 2.5, 480, x + 2.5, 485, fill="white", tags=f"point{i}")
+            point = self.canvas.create_oval(x - 5, 480, x + 5, 490, fill="white", tags=f"point{i}")
             self.points.append(point)
             v_line = self.canvas.create_line(x, 0, x, 500, fill="#696969")
             self.vertical_lines.append(v_line)
+            if i > 0:
+                self.regions.append(self.canvas.create_rectangle((x-20, 0, x, 500), outline="", tags=f"region{i-1}"))
         
         self.lines = []
         self.update_lines()
@@ -52,7 +57,10 @@ class ToneCurveWindow:
             self.canvas.tag_bind(point, "<ButtonPress-1>", self.on_button_press)
             self.canvas.tag_bind(point, "<B1-Motion>", self.on_motion)
 
-        self.selected_point = None
+        for region in self.regions:
+            self.canvas.tag_bind(region, "<ButtonPress-1>", self.on_region_press)
+            self.canvas.tag_bind(region, "<B1-Motion>", self.on_region_motion)
+
         self.min_range = 50
         self.max_range = 450
 
@@ -68,13 +76,21 @@ class ToneCurveWindow:
         self.selected_point = event.widget.find_withtag("current")[0]
     
     def on_motion(self, event):
-        index = int(self.canvas.gettags(self.selected_point)[0][5:])
-        x = 20 * index
-        y = max(self.min_range, min(event.y, self.max_range))
-        self.canvas.coords(self.selected_point, x-2.5, y-2.5, x+2.5, y+2.5)
-        self.update_lines()
-        self.apply_tone_curve()
-    
+        if self.selected_point is not None:
+            index = int(self.canvas.gettags(self.selected_point)[0][5:])
+            x = 20 * index
+            y = max(self.min_range, min(event.y, self.max_range))
+            self.canvas.coords(self.selected_point, x-5, y-5, x+5, y+5)
+            self.update_lines()
+            self.apply_tone_curve()
+
+    def on_region_press(self, event):
+        region_index = int(self.canvas.gettags("current")[0][6:])
+        self.selected_point = self.points[region_index]
+
+    def on_region_motion(self, event):
+        self.on_motion(event)
+
     def update_lines(self):
         for line in self.lines:
             self.canvas.delete(line)
@@ -82,7 +98,7 @@ class ToneCurveWindow:
         for i in range(len(self.points) - 1):
             x1, y1, _, _ = self.canvas.coords(self.points[i])
             x2, y2, _, _ = self.canvas.coords(self.points[i + 1])
-            line = self.canvas.create_line(x1+2.5, y1+2.5, x2+2.5, y2+2.5, fill="white")
+            line = self.canvas.create_line(x1+5, y1+5, x2+5, y2+5, fill="white")
             self.lines.append(line)
 
     def draw_grid(self):
@@ -123,7 +139,7 @@ class ToneCurveWindow:
             for i, point in df.iterrows():
                 x = point["x"]
                 y = point["y"]
-                self.canvas.coords(self.points[i], x-2.5, y-2.5, x+2.5, y+2.5)
+                self.canvas.coords(self.points[i], x-5, y-5, x+5, y+5)
             self.update_lines()
             self.apply_tone_curve()
 
