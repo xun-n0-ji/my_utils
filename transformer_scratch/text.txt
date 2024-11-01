@@ -1,0 +1,3 @@
+実際にTransformerを実装してみましょう。Transformerは下記の図（The Transformer［1］）で示しているように、左側のEncoderの部分と右側のDecoderの部分があります。左側のEncoderは、文章を翻訳したいとき、Encoderで文章を入力することになります。 Decoderでは過去の文章を繰り返し学習しますが、Encoderで入力があったとき、学習したモデルと照らし合わせ、一番似ている文字を出力します。
+
+今回は下記の図の基本的な部分のみ実装したいと思いますので、Decoderのみ実装することにしました。また、Residual Connectionの機能も実装しないことにしました。Residual Connection［2］は学習をさらに進めやすくするために提案されています。

@@ -11,3 +11,4 @@ env/
 atmacup/
 line_AI/
 lens_flare/
+*.pickle
